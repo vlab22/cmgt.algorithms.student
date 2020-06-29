@@ -1,0 +1,9 @@
+
+GXPEngine/docs
+
+.DS_Store
+
+/GXPEngine/GXPEngine/obj
+.vs
+.idea
+/assignment/obj
