@@ -14,10 +14,10 @@ class HighLevelDungeonNodeGraph : NodeGraph
 
     protected override void generate()
     {
-        for (int i = 0; i < _dungeon.rooms.Count; i++)
-        {
-            nodes.Add(new Node(getRoomCenter(_dungeon.rooms[i])));
-        }
+        var sDundegon = _dungeon as SufficientDungeon;
+
+        nodes.Clear();
+        nodes.AddRange(sDundegon.nodes);
     }
     
     /**
@@ -28,6 +28,22 @@ class HighLevelDungeonNodeGraph : NodeGraph
     {
         float centerX = ((pRoom.area.Left + pRoom.area.Right) / 2.0f) * _dungeon.scale;
         float centerY = ((pRoom.area.Top + pRoom.area.Bottom) / 2.0f) * _dungeon.scale;
+        return new Point((int)centerX, (int)centerY);
+    }
+    
+    protected Point getDoorCenter(Door pDoor)
+    {
+        return getPointCenter(pDoor.location);
+    }
+
+    /**
+	 * A helper method for your convenience so you don't have to meddle with coordinate transformations.
+	 * @return the location of the center of the given point you can use for your nodes in this class
+	 */
+    protected Point getPointCenter(Point pLocation)
+    {
+        float centerX = (pLocation.X + 0.5f) * _dungeon.scale;
+        float centerY = (pLocation.Y + 0.5f) * _dungeon.scale;
         return new Point((int)centerX, (int)centerY);
     }
 }

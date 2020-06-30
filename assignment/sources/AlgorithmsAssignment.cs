@@ -27,7 +27,7 @@ class AlgorithmsAssignment : Game
 
 	//common settings
 	private const int SCALE = 20;				//TODO: experiment with changing this
-	private const int MIN_ROOM_SIZE = 9;		//TODO: use this setting in your dungeon generator
+	private const int MIN_ROOM_SIZE = 10;		//TODO: use this setting in your dungeon generator
 
 	private const int GRID_WIDTH = 800;
 	private const int GRID_HEIGHT = 600;
@@ -116,7 +116,7 @@ class AlgorithmsAssignment : Game
 		//TODO: Comment out the SampleDungeonNodeGraph again, implement a HighLevelDungeonNodeGraph class and uncomment it below
 
 		//_graph = new SampleDungeonNodeGraph(_dungeon);
-		//_graph = new HighLevelDungeonNodeGraph(_dungeon);
+		_graph = new HighLevelDungeonNodeGraph(_dungeon);
 		//_graph = new LowLevelDungeonNodeGraph(_dungeon);
 
 		if (_graph != null) _graph.Generate();
@@ -216,6 +216,7 @@ class AlgorithmsAssignment : Game
 		if (Input.GetKeyDown(Key.R))
 		{
 			_dungeon.Generate(MIN_ROOM_SIZE);
+			_graph.Generate();
 		}
 	}
 }
