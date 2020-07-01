@@ -32,7 +32,7 @@ abstract class TiledView : GameObject
 		_defaultTileType = pDefaultTileType;
 
 		//we use a single sprite to render the whole tileview
-		_tileSet = new AnimationSprite("assets/tileset.png", 3, 1);
+		_tileSet = new AnimationSprite("../../assets/tileset.png", 3, 1);
 		_tileSet.width = _tileSet.height = pTileSize;
 
 		initializeTiles();

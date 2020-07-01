@@ -12,10 +12,6 @@ using Rectangle = System.Drawing.Rectangle;
 
 internal class SufficientDungeon : Dungeon
 {
-    public EasyDraw easyDraw;
-
-    private Font _font;
-
     public Dictionary<Room, List<Door>> roomDoorsMap = new Dictionary<Room, List<Door>>();
 
     public List<GenericNode<Room>> rawNodes = new List<GenericNode<Room>>();
@@ -27,11 +23,6 @@ internal class SufficientDungeon : Dungeon
     public SufficientDungeon(Size pSize) : base(pSize)
     {
         doorPen = Pens.Red;
-
-        _font = new Font("Courier New", 12f, FontStyle.Bold);
-
-        easyDraw = new EasyDraw(game.width, game.height);
-        easyDraw.TextFont(_font);
     }
 
     protected override void generate(int pMinimumRoomSize)
@@ -108,13 +99,14 @@ internal class SufficientDungeon : Dungeon
         Console.WriteLine();
         Console.WriteLine();
 
-        Console.WriteLine(GetNodesTreeText());
-
         AddDoors();
 
         Console.WriteLine($"Doors Count: {doors.Count}");
         
         CreateNodes();
+        
+        Console.WriteLine(GetNodesTreeText());
+
     }
 
     private void CreateNodes()
@@ -145,6 +137,8 @@ internal class SufficientDungeon : Dungeon
             
             nodeNeighborRoom0.connections.Add(nodeDoor);
             nodeNeighborRoom1.connections.Add(nodeDoor);
+            nodeDoor.connections.Add(nodeNeighborRoom0);
+            nodeDoor.connections.Add(nodeNeighborRoom1);
         }
     }
 
@@ -340,14 +334,14 @@ internal class SufficientDungeon : Dungeon
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            DrawRoomsByStep(1);
-        }
-        else if (Input.GetMouseButtonDown(1))
-        {
-            DrawRoomsByStep(-1);
-        }
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     DrawRoomsByStep(1);
+        // }
+        // else if (Input.GetMouseButtonDown(1))
+        // {
+        //     DrawRoomsByStep(-1);
+        // }
 
         var mouseX = Input.mouseX;
         var mouseY = Input.mouseY;
@@ -368,43 +362,9 @@ internal class SufficientDungeon : Dungeon
         graphics.Clear(Color.Transparent);
         drawRooms(roomsToDraw, wallPen);
         drawDoors(doors, doorPen);
-
-        DrawRoomsLabels(roomsToDraw);
     }
 
-    void DrawRoomsLabels(IEnumerable<Room> rooms)
-    {
-        easyDraw.Clear(Color.Transparent);
-        int roomCounter = 0;
-        foreach (var room in rooms)
-        {
-            DrawRoomLabel(room, roomCounter);
-            roomCounter++;
-        }
-    }
-
-    void DrawRoomLabel(Room room, int roomCounter)
-    {
-        easyDraw.TextAlign(CenterMode.Center, CenterMode.Center);
-
-        var point = GetRoomCenter(room);
-
-        var pRoom = room.area;
-
-        easyDraw.Fill(Color.DimGray);
-        easyDraw.TextSize(12.2f);
-        easyDraw.Text(
-            $"Room[{roomCounter}]:\r\n{room.area.Left},{room.area.Top} | {room.area.Right - 1}, {room.area.Bottom - 1}",
-            point.X, point.Y);
-
-        easyDraw.Fill(Color.Cyan);
-        easyDraw.TextSize(12f);
-        easyDraw.Text(
-            $"Room[{roomCounter}]:\r\n{room.area.Left},{room.area.Top} | {room.area.Right - 1}, {room.area.Bottom - 1}",
-            point.X, point.Y);
-    }
-
-    Room GetRoomAtPoint(Point p)
+   Room GetRoomAtPoint(Point p)
     {
         for (int i = 0; i < rooms.Count; i++)
         {

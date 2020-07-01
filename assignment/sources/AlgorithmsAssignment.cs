@@ -129,7 +129,7 @@ class AlgorithmsAssignment : Game
 		//TODO: Comment out the SampleNodeGraphAgent again, implement an OffGraphWayPointAgent class and uncomment it below
 
 		//_agent = new SampleNodeGraphAgent(_graph);
-		//_agent = new OffGraphWayPointAgent(_graph);
+		_agent = new OffGraphWayPointAgent(_graph);
 
 		////////////////////////////////////////////////////////////
 		//Assignment 2.2 Good (Optional) TiledView
@@ -140,7 +140,7 @@ class AlgorithmsAssignment : Game
 		//TODO: Comment out the SampleTiledView again, implement the TiledDungeonView	and uncomment it below
 
 		//_tiledView = new SampleTiledView(_dungeon, TileType.GROUND);
-		//_tiledView = new TiledDungeonView(_dungeon, TileType.GROUND); 
+		_tiledView = new TiledDungeonView(_dungeon, TileType.GROUND); 
 		if (_tiledView != null) _tiledView.Generate();
 
 		////////////////////////////////////////////////////////////
@@ -197,12 +197,12 @@ class AlgorithmsAssignment : Game
 		if (_dungeon != null)
 		{
 			AddChild(_dungeon);
-			AddChild(((SufficientDungeon) _dungeon).easyDraw);
+			//AddChild(((SufficientDungeon) _dungeon).easyDraw);
 		}
 
-		if (_graph != null) AddChild(_graph);
 		if (_tiledView != null) AddChild(_tiledView);
 		if (_pathFinder != null) AddChild(_pathFinder);				//pathfinder on top of that
+		if (_graph != null) AddChild(_graph);
 		if (_graph != null) AddChild(new NodeLabelDrawer(_graph));	//node label display on top of that
 		if (_agent != null) AddChild(_agent);                       //and last but not least the agent itself
 
