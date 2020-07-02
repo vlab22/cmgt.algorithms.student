@@ -18,7 +18,7 @@ class NodeLabelDrawer : Canvas
 		Console.WriteLine("* L key to toggle node label display.");
 		Console.WriteLine("-----------------------------------------------------------------------------");
 
-		_labelFont = new Font(SystemFonts.DefaultFont.FontFamily, pNodeGraph.nodeSize, FontStyle.Bold);
+		_labelFont = new Font(SystemFonts.DefaultFont.FontFamily, pNodeGraph.nodeSize, FontStyle.Regular);
 		_graph = pNodeGraph;
 	}
 

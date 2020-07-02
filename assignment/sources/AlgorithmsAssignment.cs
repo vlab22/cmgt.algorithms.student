@@ -27,7 +27,7 @@ class AlgorithmsAssignment : Game
 
 	//common settings
 	private const int SCALE = 20;				//TODO: experiment with changing this
-	private const int MIN_ROOM_SIZE = 10;		//TODO: use this setting in your dungeon generator
+	private const int MIN_ROOM_SIZE = 7;		//TODO: use this setting in your dungeon generator
 
 	private const int GRID_WIDTH = 800;
 	private const int GRID_HEIGHT = 600;
@@ -129,7 +129,8 @@ class AlgorithmsAssignment : Game
 		//TODO: Comment out the SampleNodeGraphAgent again, implement an OffGraphWayPointAgent class and uncomment it below
 
 		//_agent = new SampleNodeGraphAgent(_graph);
-		_agent = new OffGraphWayPointAgent(_graph);
+		//_agent = new OffGraphWayPointAgent(_graph);
+		_agent = new RandomSearchGraphAgent(_graph);
 
 		////////////////////////////////////////////////////////////
 		//Assignment 2.2 Good (Optional) TiledView

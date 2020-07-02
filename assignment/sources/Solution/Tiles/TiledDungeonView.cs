@@ -12,6 +12,7 @@ internal class TiledDungeonView : TiledView
 
     protected override void generate()
     {
+        //Set Walls
         for (int r = 0; r < _dungeon.rooms.Count; r++)
         {
             var room = _dungeon.rooms[r];
@@ -23,6 +24,7 @@ internal class TiledDungeonView : TiledView
             }
         }
 
+        //Set Doors
         for (int d = 0; d < _dungeon.doors.Count; d++)
         {
             var door = _dungeon.doors[d];

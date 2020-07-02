@@ -7,13 +7,13 @@ using GXPEngine;
 internal class OffGraphWayPointAgent : NodeGraphAgent
 {
     //Current target to move towards
-    private Node _target = null;
+    protected Node _target = null;
 
-    private Queue<Node> _nodesQueue = new Queue<Node>();
+    protected Queue<Node> _nodesQueue = new Queue<Node>();
 
-    private Node _lastAdded;
+    protected Node _lastAdded;
     
-    private Node _parkedNode;
+    protected Node _parkedNode;
 
     public OffGraphWayPointAgent(NodeGraph pNodeGraph) : base(pNodeGraph)
     {

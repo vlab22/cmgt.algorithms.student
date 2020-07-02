@@ -40,7 +40,7 @@ abstract class NodeGraph : Canvas
 	 */
 	public NodeGraph(int pWidth, int pHeight, int pNodeSize) : base(pWidth, pHeight)
 	{
-		nodeSize = pNodeSize;
+		nodeSize = pNodeSize * 2;
 
 		Console.WriteLine("\n-----------------------------------------------------------------------------");
 		Console.WriteLine(this.GetType().Name + " created.");
