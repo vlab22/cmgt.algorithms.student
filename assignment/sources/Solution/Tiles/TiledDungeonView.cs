@@ -16,7 +16,7 @@ internal class TiledDungeonView : TiledView
         for (int r = 0; r < _dungeon.rooms.Count; r++)
         {
             var room = _dungeon.rooms[r];
-            var walls = room.GetWallPoints();
+            var walls = room.GetWalls();
             for (int w = 0; w < walls.Count; w++)
             {
                 var wall = walls[w];

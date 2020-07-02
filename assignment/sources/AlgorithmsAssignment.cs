@@ -116,8 +116,8 @@ class AlgorithmsAssignment : Game
 		//TODO: Comment out the SampleDungeonNodeGraph again, implement a HighLevelDungeonNodeGraph class and uncomment it below
 
 		//_graph = new SampleDungeonNodeGraph(_dungeon);
-		_graph = new HighLevelDungeonNodeGraph(_dungeon);
-		//_graph = new LowLevelDungeonNodeGraph(_dungeon);
+		//_graph = new HighLevelDungeonNodeGraph(_dungeon);
+		_graph = new LowLevelDungeonNodeGraph(_dungeon);
 
 		if (_graph != null) _graph.Generate();
 

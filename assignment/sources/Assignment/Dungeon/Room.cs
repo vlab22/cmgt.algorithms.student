@@ -13,7 +13,7 @@ class Room
         area = pArea;
     }
 
-    public List<Point> GetWallPoints()
+    public List<Point> GetWalls()
     {
         var walls = new List<Point>();
 
@@ -32,6 +32,21 @@ class Room
         }
 
         return walls;
+    }
+
+    public List<Point> GetFloors()
+    {
+        var floors = new List<Point>();
+
+        for (int i = area.Left + 1; i < area.Right - 1; i++)
+        {
+            for (int j = area.Top + 1; j < area.Bottom - 1; j++)
+            {
+                floors.Add(new Point(i, j));
+            }
+        }
+
+        return floors;
     }
 
     public override string ToString()

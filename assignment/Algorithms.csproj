@@ -153,6 +153,7 @@
     <Compile Include="sources\Solution\Dungeon\SufficientDungeon.cs" />
     <Compile Include="sources\Solution\NodeGraph\GenericNode.cs" />
     <Compile Include="sources\Solution\NodeGraph\HighLevelDungeonNodeGraph.cs" />
+    <Compile Include="sources\Solution\NodeGraph\LowLevelDungeonNodeGraph.cs" />
     <Compile Include="sources\Solution\Tiles\TiledDungeonView.cs" />
     <Compile Include="sources\Util\ArrayTools.cs" />
     <Compile Include="sources\Util\Grid.cs" />

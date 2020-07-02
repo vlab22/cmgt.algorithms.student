@@ -29,7 +29,7 @@ abstract class NodeGraph : Canvas
 	private Node _nodeUnderMouse = null;
 
 	//some drawing settings
-	public int nodeSize { get; private set; }
+	public int nodeSize { get; protected set; }
 	private Pen _connectionPen = new Pen(Color.Black, 2);
 	private Pen _outlinePen = new Pen(Color.Black, 2.1f);
 	private Brush _defaultNodeColor = Brushes.CornflowerBlue;
@@ -40,7 +40,7 @@ abstract class NodeGraph : Canvas
 	 */
 	public NodeGraph(int pWidth, int pHeight, int pNodeSize) : base(pWidth, pHeight)
 	{
-		nodeSize = pNodeSize * 2;
+		nodeSize = pNodeSize;
 
 		Console.WriteLine("\n-----------------------------------------------------------------------------");
 		Console.WriteLine(this.GetType().Name + " created.");
