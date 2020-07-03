@@ -22,11 +22,12 @@ internal class LowLevelDungeonNodeGraph : NodeGraph
         (int) (pDungeon.size.Height * pDungeon.scale), (int) pDungeon.scale / 3)
     {
         _dungeon = pDungeon;
-        SetFloors();
     }
 
     protected override void generate()
     {
+        SetFloors();
+
         //Add nodes
         foreach (var floor in floors)
         {
@@ -42,13 +43,13 @@ internal class LowLevelDungeonNodeGraph : NodeGraph
         foreach (var floor in floors)
         {
             var floorNode = nodesLocationMap[floor];
-            
+
             for (int i = 0; i < _directions.Length; i++)
             {
                 var dir = _directions[i];
 
                 var neighbourFloor = new Point(floor.X + dir.X, floor.Y + dir.Y);
-                
+
                 //Check if it's a Node/Floor
                 if (nodesLocationMap.TryGetValue(neighbourFloor, out var node))
                 {

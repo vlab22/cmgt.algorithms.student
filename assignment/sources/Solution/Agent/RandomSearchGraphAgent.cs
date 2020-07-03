@@ -5,11 +5,8 @@ using GXPEngine;
 
 internal class RandomSearchGraphAgent : OffGraphWayPointAgent
 {
-    private List<Node> _nodes;
-
     public RandomSearchGraphAgent(NodeGraph pNodeGraph) : base(pNodeGraph)
     {
-        _nodes = pNodeGraph.nodes;
     }
 
     protected override void OnNodeClickHandler(Node pNode)
