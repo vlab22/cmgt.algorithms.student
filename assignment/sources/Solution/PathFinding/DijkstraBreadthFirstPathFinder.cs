@@ -8,11 +8,6 @@ internal class DijkstraBreadthFirstPathFinder : BreadthFirstPathFinder
 {
     public DijkstraBreadthFirstPathFinder(NodeGraph pGraph) : base(pGraph)
     {
-        _todoList = new List<Node>();
-        _doneList = new HashSet<Node>();
-
-        _todoListDebug = new List<Node>();
-        _doneListDebug = new List<Node>();
     }
 
     protected override List<Node> generate(Node pFrom, Node pTo)
@@ -48,6 +43,8 @@ internal class DijkstraBreadthFirstPathFinder : BreadthFirstPathFinder
             }
             else
             {
+                var validConnections = new List<Node>();
+
                 for (int i = 0; i < currentNode.connections.Count; i++)
                 {
                     var connectedNode = currentNode.connections[i];
@@ -59,19 +56,16 @@ internal class DijkstraBreadthFirstPathFinder : BreadthFirstPathFinder
                         float distanceToNew = PointTools.PointDistance(connectedNode.location, currentNode.location);
 
                         connectedNode.distanceCost = distanceFromStart + distanceToNew;
-                    }
-                    else
-                    {
-                        connectedNode.distanceCost = -1;
+
+                        validConnections.Add(connectedNode);
                     }
                 }
 
-                var sortedConnections =
-                    currentNode.connections.Where(n => n.distanceCost > 0).OrderBy(n => n.distanceCost);
+                validConnections.OrderBy(n => n.distanceCost);
 
-                foreach (var sortedConnection in sortedConnections)
+                foreach (var connection in validConnections)
                 {
-                    var connectedNode = sortedConnection;
+                    var connectedNode = connection;
                     connectedNode.nodeParent = currentNode;
                     _todoList.Add(connectedNode);
                 }

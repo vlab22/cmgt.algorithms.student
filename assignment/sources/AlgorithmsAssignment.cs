@@ -35,6 +35,8 @@ class AlgorithmsAssignment : Game
 
     private Size _size;
 
+    private EasyDraw _drawHelp;
+
     public AlgorithmsAssignment() : base(1280, 600, false, true, -1, -1, false)
     {
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -210,6 +212,11 @@ class AlgorithmsAssignment : Game
             AddChild(_nodeLabelDrawer = new NodeLabelDrawer(_graph)); //node label display on top of that
         if (_agent != null) AddChild(_agent); //and last but not least the agent itself
 
+        _drawHelp = new EasyDraw(width - GRID_WIDTH, height);
+        AddChild(_drawHelp);
+        
+        _drawHelp.SetXY(GRID_WIDTH, 0);
+
         /////////////////////////////////////////////////
         //The end!
         ////
@@ -238,6 +245,16 @@ class AlgorithmsAssignment : Game
             if (_dungeon is SufficientDungeon dungeon)
                 dungeon.DrawRoomsByStep(-1);
         }
+        
+        _drawHelp.Clear(Color.Transparent);
+
+        var titles = _dungeon.GetType() + "\r\n";
+        titles += _graph.GetType() + "\r\n";
+        titles += _pathFinder.GetType() + "\r\n";
+        
+        _drawHelp.Fill(Color.Black);
+        _drawHelp.TextAlign(CenterMode.Min, CenterMode.Min);
+        _drawHelp.Text(titles, 10, 10);
     }
 
     void ResetDungeon()
