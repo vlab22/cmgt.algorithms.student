@@ -24,6 +24,8 @@ class Node
     private static int lastID = 0;
     public Node nodeParent;
 
+    public bool enabled = true;
+
     /**
 	 * Create a node.
 	 * @param pLocation the position of this node

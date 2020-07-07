@@ -6,7 +6,7 @@ using GXPEngine;
 internal class BreadthFirstPathFinder : PathFinder
 {
     protected List<Node> _todoList;
-    protected List<Node> _doneList;
+    protected HashSet<Node> _doneList;
     protected bool _done;
     protected bool _isStep;
     
@@ -16,7 +16,7 @@ internal class BreadthFirstPathFinder : PathFinder
     public BreadthFirstPathFinder(NodeGraph pGraph) : base(pGraph)
     {
         _todoList = new List<Node>();
-        _doneList = new List<Node>();
+        _doneList = new HashSet<Node>();
         
         _todoListDebug = new List<Node>();
         _doneListDebug = new List<Node>();
@@ -27,7 +27,7 @@ internal class BreadthFirstPathFinder : PathFinder
         ClearNodesParents();
 
         _todoList = new List<Node>();
-        _doneList = new List<Node>();
+        _doneList = new HashSet<Node>();
 
         var path = BFS(pFrom, pTo);
 
@@ -42,7 +42,7 @@ internal class BreadthFirstPathFinder : PathFinder
 
         while (_todoList.Count > 0 && done == false)
         {
-            var currentNode = _todoList.Last();
+            var currentNode = _todoList.First();
             _todoList.Remove(currentNode);
             _doneList.Add(currentNode);
 
@@ -54,7 +54,7 @@ internal class BreadthFirstPathFinder : PathFinder
             {
                 foreach (var connectedNode in currentNode.connections)
                 {
-                    if (!(_todoList.Contains(connectedNode) || _doneList.Contains(connectedNode)))
+                    if (connectedNode.enabled && !(_todoList.Contains(connectedNode) || _doneList.Contains(connectedNode)))
                     {
                         connectedNode.nodeParent = currentNode;
                         _todoList.Add(connectedNode);
@@ -79,7 +79,7 @@ internal class BreadthFirstPathFinder : PathFinder
         return path;
     }
 
-    List<Node> BuildPath(List<Node> doneList)
+    List<Node> BuildPath(ICollection<Node> doneList)
     {
         var path = new List<Node>();
         var pathNode = doneList.Last();
@@ -102,7 +102,7 @@ internal class BreadthFirstPathFinder : PathFinder
         {
             if (_startNode != null)
             {
-                _nodeGraph.RemoveNode(_startNode);
+                _nodeGraph.ActivateNode(_startNode, !_startNode.enabled);
                 _nodeGraph.draw();
             }
         }
@@ -150,7 +150,7 @@ internal class BreadthFirstPathFinder : PathFinder
                 {
                     foreach (var connectedNode in currentNode.connections)
                     {
-                        if (!(_todoList.Contains(connectedNode) || _doneList.Contains(connectedNode)))
+                        if (connectedNode.enabled && !(_todoList.Contains(connectedNode) || _doneList.Contains(connectedNode)))
                         {
                             connectedNode.nodeParent = currentNode;
                             _todoList.Add(connectedNode);
