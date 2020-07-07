@@ -52,6 +52,8 @@ abstract class PathFinder : Canvas
         Console.WriteLine("-----------------------------------------------------------------------------");
     }
 
+    protected List<Node> LastCalculatedPath => _lastCalculatedPath;
+
     /////////////////////////////////////////////////////////////////////////////////////////
     /// Core PathFinding methods
     public List<Node> Generate(Node pFrom, Node pTo)
