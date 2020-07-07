@@ -119,8 +119,8 @@ class AlgorithmsAssignment : Game
         //TODO: Comment out the SampleDungeonNodeGraph again, implement a HighLevelDungeonNodeGraph class and uncomment it below
 
         //_graph = new SampleDungeonNodeGraph(_dungeon);
-        //_graph = new HighLevelDungeonNodeGraph(_dungeon);
-        _graph = new LowLevelDungeonNodeGraph(_dungeon);
+        _graph = new HighLevelDungeonNodeGraph(_dungeon);
+        //_graph = new LowLevelDungeonNodeGraph(_dungeon);
 
         if (_graph != null) _graph.Generate();
 
@@ -133,7 +133,6 @@ class AlgorithmsAssignment : Game
 
         //_agent = new SampleNodeGraphAgent(_graph);
         //_agent = new OffGraphWayPointAgent(_graph);
-        _agent = new RandomSearchGraphAgent(_graph);
 
         ////////////////////////////////////////////////////////////
         //Assignment 2.2 Good (Optional) TiledView
@@ -152,7 +151,7 @@ class AlgorithmsAssignment : Game
         //
         //TODO: Comment out the OffGraphWayPointAgent above, implement an OnGraphWayPointAgent class and uncomment it below
 
-        //_agent = new OnGraphWayPointAgent(_graph);	
+        _agent = new OnGraphWayPointAgent(_graph);
 
         //////////////////////////////////////////////////////////////
         //Assignment 2.3 Excellent (Optional) LowLevelDungeonNodeGraph
@@ -179,7 +178,7 @@ class AlgorithmsAssignment : Game
         //Assignment 3.1 Sufficient (Mandatory) - BreadthFirst Pathfinding
         //
         //TODO: Comment out the RecursivePathFinder above, implement a BreadthFirstPathFinder and uncomment it below
-        //_pathFinder = new BreadthFirstPathFinder(_graph);
+        _pathFinder = new BreadthFirstPathFinder(_graph);
 
         //TODO: Implement a PathFindingAgent that uses one of your pathfinder implementations (should work with any pathfinder implementation)
         //_agent = new PathFindingAgent(_graph, _pathFinder);
@@ -201,7 +200,6 @@ class AlgorithmsAssignment : Game
         if (_dungeon != null)
         {
             AddChild(_dungeon);
-            //AddChild(((SufficientDungeon) _dungeon).easyDraw);
         }
 
         if (_tiledView != null) AddChild(_tiledView);
@@ -222,6 +220,23 @@ class AlgorithmsAssignment : Game
         {
             ResetDungeon();
         }
+
+        if (Input.GetKeyDown(Key.K))
+        {
+            if (_tiledView != null)
+                _tiledView.visible = false;
+            
+            if (_dungeon is SufficientDungeon dungeon)
+                dungeon.DrawRoomsByStep(1);
+        }
+        else if (Input.GetKeyDown(Key.J))
+        {
+            if (_tiledView != null)
+                _tiledView.visible = false;
+            
+            if (_dungeon is SufficientDungeon dungeon)
+                dungeon.DrawRoomsByStep(-1);
+        }
     }
 
     void ResetDungeon()
@@ -237,16 +252,28 @@ class AlgorithmsAssignment : Game
         _dungeon.scale = SCALE;
         _dungeon.Generate(MIN_ROOM_SIZE);
 
-        _graph = new LowLevelDungeonNodeGraph(_dungeon);
+        if (_graph is HighLevelDungeonNodeGraph)
+        {
+            _graph = new HighLevelDungeonNodeGraph(_dungeon);
+        }
+        else
+            _graph = new LowLevelDungeonNodeGraph(_dungeon);
+
         _graph.Generate();
 
+        if (_pathFinder is BreadthFirstPathFinder)
+        {
+            _pathFinder = new BreadthFirstPathFinder(_graph);
+        }
+        
         _tiledView = new TiledDungeonView(_dungeon, TileType.GROUND);
         _tiledView.Generate();
 
-        _agent = new RandomSearchGraphAgent(_graph);
+        _agent = new OnGraphWayPointAgent(_graph);
 
         if (_tiledView != null) AddChild(_tiledView);
-        if (_pathFinder != null) AddChild(_pathFinder); //pathfinder on top of that
+        if (_pathFinder != null) {AddChild(_pathFinder); //pathfinder on top of that
+}
         if (_graph != null) AddChild(_graph);
         if (_graph != null)
             AddChild(_nodeLabelDrawer = new NodeLabelDrawer(_graph)); //node label display on top of that

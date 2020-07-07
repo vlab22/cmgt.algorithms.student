@@ -17,6 +17,8 @@ class Door
 	//Again, whether you need flags like this depends on how you implement the algorithm, maybe you need other flags
 	public bool horizontal = false;
 
+	public Point direction;
+
 	public Door(Point pLocation)
 	{
 		location = pLocation;

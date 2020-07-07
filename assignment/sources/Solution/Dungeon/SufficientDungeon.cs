@@ -1,25 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using GXPEngine;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using GXPEngine.Core;
 using GXPEngine.OpenGL;
 using Rectangle = System.Drawing.Rectangle;
 
 internal class SufficientDungeon : Dungeon
 {
-    public Dictionary<Room, List<Door>> roomDoorsMap = new Dictionary<Room, List<Door>>();
+    public Dictionary<Room, List<Room>> roomHierarchyTree = new Dictionary<Room,  List<Room>>();
 
-    public List<GenericNode<Room>> rawNodes = new List<GenericNode<Room>>();
-
-    public List<Node> nodes = new List<Node>();
-
-    public List<Point> doorsDirections = new List<Point>();
-
+    private int _stepCreationIndex = 1;
+    
     public SufficientDungeon(Size pSize) : base(pSize)
     {
         doorPen = Pens.Red;
@@ -27,19 +19,14 @@ internal class SufficientDungeon : Dungeon
 
     protected override void generate(int pMinimumRoomSize)
     {
-        roomDoorsMap.Clear();
-        doorsDirections.Clear();
-        rawNodes.Clear();
-        nodes.Clear();
-        GenericNode<Room>.ResetId();
+        roomHierarchyTree.Clear();
+        _stepCreationIndex = 1;
 
         var roomsToSplit = new List<Room>();
 
         roomsToSplit.Add(new Room(new Rectangle(0, 0, size.Width, size.Height)));
 
         bool allowGenerate = true;
-
-        int infiniteLoopCounter = 0;
 
         while (roomsToSplit.Count > 0)
         {
@@ -54,42 +41,15 @@ internal class SufficientDungeon : Dungeon
                 roomsToSplit.AddRange(moreRooms);
                 roomsToSplit.Remove(parentRoom);
 
-                roomDoorsMap.Add(parentRoom, new List<Door>());
-
-                //Check if node exist
-                var parentNode = rawNodes.FirstOrDefault(n => n.obj == parentRoom);
-                if (parentNode == null)
-                {
-                    parentNode = new GenericNode<Room>(parentRoom);
-                    rawNodes.Add(parentNode);
-                }
-
-                var childNode0 = rawNodes.FirstOrDefault(n => n.obj == moreRooms[0]);
-                if (childNode0 == null)
-                {
-                    childNode0 = new GenericNode<Room>(moreRooms[0]);
-                    rawNodes.Add(childNode0);
-                }
-
-                var childNode1 = rawNodes.FirstOrDefault(n => n.obj == moreRooms[1]);
-                if (childNode1 == null)
-                {
-                    childNode1 = new GenericNode<Room>(moreRooms[1]);
-                    rawNodes.Add(childNode1);
-                }
-
-                parentNode.connections.Add(childNode0);
-                parentNode.connections.Add(childNode1);
+                roomHierarchyTree.Add(parentRoom, moreRooms);
             }
             else
             {
                 rooms.Add(parentRoom);
                 roomsToSplit.Remove(parentRoom);
 
-                roomDoorsMap.Add(parentRoom, new List<Door>());
+                roomHierarchyTree.Add(parentRoom, new List<Room>(0));
             }
-
-            infiniteLoopCounter++;
         }
 
         Console.WriteLine();
@@ -102,49 +62,11 @@ internal class SufficientDungeon : Dungeon
         AddDoors();
 
         Console.WriteLine($"Doors Count: {doors.Count}");
-        
-        CreateNodes();
-        
-        Console.WriteLine(GetNodesTreeText());
-
-    }
-
-    private void CreateNodes()
-    {
-        for (int i = 0; i < doors.Count; i++)
-        {
-            var door = doors[i];
-            var direction = doorsDirections[i];
-            
-            //Get the point at direction +1
-            var neighborPoint0 = new Point(door.location.X + direction.X, door.location.Y + direction.Y);
-            var neighborRoom0 = GetRoomAtPoint(neighborPoint0);
-
-            //Get the point at direction -1
-            var neighborPoint1 = new Point(door.location.X - direction.X, door.location.Y - direction.Y);
-            var neighborRoom1 = GetRoomAtPoint(neighborPoint1);
-            
-            //Create nodes if not exists
-
-            var neighborRoom0Center = GetRoomCenter(neighborRoom0);
-            var nodeNeighborRoom0 = AddNodeIfNotExists(neighborRoom0Center);
-
-            var neighborRoom1Center = GetRoomCenter(neighborRoom1);
-            var nodeNeighborRoom1 = AddNodeIfNotExists(neighborRoom1Center);
-            
-            var doorCenter = GetDoorCenter(door);
-            var nodeDoor = AddNodeIfNotExists(doorCenter);
-            
-            nodeNeighborRoom0.connections.Add(nodeDoor);
-            nodeNeighborRoom1.connections.Add(nodeDoor);
-            nodeDoor.connections.Add(nodeNeighborRoom0);
-            nodeDoor.connections.Add(nodeNeighborRoom1);
-        }
     }
 
     bool Generate2Rooms(Room parent, int pMinimumRoomSize, out List<Room> pRooms)
     {
-        pRooms = new List<Room>();
+        pRooms = new List<Room>(2);
 
         var parentArea = parent.area;
 
@@ -222,7 +144,7 @@ internal class SufficientDungeon : Dungeon
 
     public void AddDoors()
     {
-        var allRooms = roomDoorsMap.Keys.ToArray();
+        var allRooms = roomHierarchyTree.Keys.ToArray();
         for (int i = allRooms.Length - 1; i > 0; i -= 2)
         {
             Console.WriteLine($"Door[{i}] {allRooms[i - 1]} <=> {allRooms[i]}");
@@ -233,7 +155,7 @@ internal class SufficientDungeon : Dungeon
 
     public void AddDoorBetweenRooms(Room room0, Room room1)
     {
-        var roomDirection = RoomDirection(room0, room1);
+        var roomDirection = RoomDirection(room0, room1); // (1, 0) or (0, 1)
 
         var roomCenterCoord = GetRoomCenterCoord(room0);
         var doorPosX = roomCenterCoord.X + roomDirection.X * room0.area.Width / 2;
@@ -254,32 +176,26 @@ internal class SufficientDungeon : Dungeon
         Console.WriteLine(
             $"Room[{room0.area.Location} - {room0.area.Width} / {room0.area.Height}]: corners: {string.Join("|", GetRoomsCorners(room0))}");
 
-        int infloop = 0;
         int newDoorOffset = 1;
         var doorPosCorner = doorPos;
-        while (IsARoomCorner(doorPosCorner) && infloop < 1000)
+        while (IsInRoomCorner(doorPosCorner))
         {
             doorPosCorner.X = doorPos.X + roomDirection.Y * newDoorOffset;
             doorPosCorner.Y = doorPos.Y + roomDirection.X * newDoorOffset;
 
             newDoorOffset *= -1;
 
-            infloop++;
-
-            Console.WriteLine($"infloop: {infloop} | doorPos: {doorPos}");
-        }
-
-        if (infloop == 999)
-        {
-            throw new Exception(
-                $"Infinite Loop in door creation between '{room0}' and '{room1}'. Door at pos {doorPos}");
+            Console.WriteLine($"doorPos: {doorPos} RELOCATED");
         }
 
         doorPos = doorPosCorner;
 
-        var door = new Door(doorPos);
+        var door = new Door(doorPos)
+        {
+            horizontal = roomDirection.X != 0
+        };
+
         doors.Add(door);
-        doorsDirections.Add(roomDirection);
 
         Console.WriteLine($"doorPos: {doorPos}");
     }
@@ -300,7 +216,7 @@ internal class SufficientDungeon : Dungeon
         return new Point(xU, yU);
     }
 
-    bool IsARoomCorner(Point p)
+    bool IsInRoomCorner(Point p)
     {
         for (int i = 0; i < rooms.Count; i++)
         {
@@ -330,19 +246,8 @@ internal class SufficientDungeon : Dungeon
         return pts;
     }
 
-    public int creationIndex = 1;
-
     private void Update()
     {
-        // if (Input.GetMouseButtonDown(0))
-        // {
-        //     DrawRoomsByStep(1);
-        // }
-        // else if (Input.GetMouseButtonDown(1))
-        // {
-        //     DrawRoomsByStep(-1);
-        // }
-
         var mouseX = Input.mouseX;
         var mouseY = Input.mouseY;
         var mouseTileX = (int) (mouseX / scale);
@@ -353,18 +258,18 @@ internal class SufficientDungeon : Dungeon
         GL.glfwSetWindowTitle($"MouseTileX: {mouseTileX:00} | MouseTileY: {mouseTileY:00} | {roomAtPoint}");
     }
 
-    void DrawRoomsByStep(int dir)
+    public void DrawRoomsByStep(int dir)
     {
-        creationIndex = ArrayTools.GetCircularArrayIndex(creationIndex + dir, roomDoorsMap.Count + 1);
+        _stepCreationIndex = ArrayTools.GetCircularArrayIndex(_stepCreationIndex + dir, roomHierarchyTree.Count + 1);
 
-        var roomsToDraw = roomDoorsMap.Keys.Take(creationIndex);
+        var roomsToDraw = roomHierarchyTree.Keys.Take(_stepCreationIndex);
 
         graphics.Clear(Color.Transparent);
         drawRooms(roomsToDraw, wallPen);
         drawDoors(doors, doorPen);
     }
 
-   Room GetRoomAtPoint(Point p)
+    Room GetRoomAtPoint(Point p)
     {
         for (int i = 0; i < rooms.Count; i++)
         {
@@ -376,36 +281,5 @@ internal class SufficientDungeon : Dungeon
         }
 
         return null;
-    }
-
-    Node AddNodeIfNotExists(Point location)
-    {
-        var node = nodes.FirstOrDefault(n => n.location == location);
-        if (node == null)
-        {
-            node = new Node(location);
-            nodes.Add(node);
-        }
-        return node;
-    }
-    
-    string GetNodesTreeText()
-    {
-        string result = "Nodes:\r\n";
-
-        foreach (var node in nodes)
-        {
-            result += $"Node[{node.id}] => {node.location}\r\n";
-
-            if (node.connections.Count == 2)
-            {
-                result += $"\tNode[{node.connections[0].id}] => {node.connections[0].location}\r\n";
-                result += $"\tNode[{node.connections[1].id}] => {node.connections[1].location}\r\n";
-            }
-
-            result += "\r\n";
-        }
-
-        return result;
     }
 }

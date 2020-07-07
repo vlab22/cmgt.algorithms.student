@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using GXPEngine;
 
-internal class RandomSearchGraphAgent : OffGraphWayPointAgent
+internal class OnGraphWayPointAgent : OffGraphWayPointAgent
 {
-    public RandomSearchGraphAgent(NodeGraph pNodeGraph) : base(pNodeGraph)
+    public OnGraphWayPointAgent(NodeGraph pNodeGraph) : base(pNodeGraph)
     {
     }
 

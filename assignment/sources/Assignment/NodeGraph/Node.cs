@@ -22,6 +22,7 @@ class Node
     //Every node has a id that we can display on screen for debugging
     public readonly string id;
     private static int lastID = 0;
+    public Node nodeParent;
 
     /**
 	 * Create a node.

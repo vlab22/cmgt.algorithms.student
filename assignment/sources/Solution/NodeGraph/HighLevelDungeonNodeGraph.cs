@@ -1,27 +1,70 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 
 class HighLevelDungeonNodeGraph : NodeGraph
 {
     private Dungeon _dungeon;
-
-    public List<Point> doorsDirections = new List<Point>();
     
     public HighLevelDungeonNodeGraph(Dungeon pDungeon) : base((int)(pDungeon.size.Width * pDungeon.scale), (int)(pDungeon.size.Height * pDungeon.scale), (int)pDungeon.scale/3)
     {
         Debug.Assert(pDungeon != null, "Please pass in a dungeon.");
 
         _dungeon = (SufficientDungeon)pDungeon;
-        
     }
 
     protected override void generate()
     {
-        var sDundegon = _dungeon as SufficientDungeon;
-
         nodes.Clear();
-        nodes.AddRange(sDundegon.nodes);
+        
+        CreateNodes();
+    }
+
+    private void CreateNodes()
+    {
+        for (int i = 0; i < _dungeon.doors.Count; i++)
+        {
+            var door = _dungeon.doors[i];
+            var direction = door.horizontal ? new Point(1, 0) : new Point(0, 1);
+
+            //Get the point at direction +1
+
+            var neighborPoint0 = new Point(door.location.X + direction.X, door.location.Y + direction.Y);
+            var neighborRoom0 = GetRoomAtPoint(neighborPoint0);
+
+            //Get the point at direction -1
+            var neighborPoint1 = new Point(door.location.X - direction.X, door.location.Y - direction.Y);
+            var neighborRoom1 = GetRoomAtPoint(neighborPoint1);
+
+            //Create nodes if not exists
+
+            var neighborRoom0Center = GetRoomCenter(neighborRoom0);
+            var nodeNeighborRoom0 = AddNodeIfNotExists(neighborRoom0Center);
+
+            var neighborRoom1Center = GetRoomCenter(neighborRoom1);
+            var nodeNeighborRoom1 = AddNodeIfNotExists(neighborRoom1Center);
+
+            var doorCenter = GetPointCenter(door.location);
+            var nodeDoor = AddNodeIfNotExists(doorCenter);
+
+            nodeNeighborRoom0.connections.Add(nodeDoor);
+            nodeNeighborRoom1.connections.Add(nodeDoor);
+            nodeDoor.connections.Add(nodeNeighborRoom0);
+            nodeDoor.connections.Add(nodeNeighborRoom1);
+        }
+    }
+    
+    Node AddNodeIfNotExists(Point location)
+    {
+        var node = nodes.FirstOrDefault(n => n.location == location);
+        if (node == null)
+        {
+            node = new Node(location);
+            nodes.Add(node);
+        }
+
+        return node;
     }
     
     /**
@@ -58,5 +101,25 @@ class HighLevelDungeonNodeGraph : NodeGraph
         }
    
         return null;
+    }
+    
+    string GetNodesTreeText()
+    {
+        string result = "Nodes:\r\n";
+
+        foreach (var node in nodes)
+        {
+            result += $"Node[{node.id}] => {node.location}\r\n";
+
+            if (node.connections.Count == 2)
+            {
+                result += $"\tNode[{node.connections[0].id}] => {node.connections[0].location}\r\n";
+                result += $"\tNode[{node.connections[1].id}] => {node.connections[1].location}\r\n";
+            }
+
+            result += "\r\n";
+        }
+
+        return result;
     }
 }

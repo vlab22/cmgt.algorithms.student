@@ -82,7 +82,7 @@ abstract class NodeGraph : Canvas
 	/// NodeGraph visualization helper methods
 	///
 
-	protected virtual void draw()
+	public virtual void draw()
 	{
 		graphics.Clear(Color.Transparent);
 		drawAllConnections();
@@ -94,7 +94,7 @@ abstract class NodeGraph : Canvas
 		foreach (Node node in nodes) drawNode(node, _defaultNodeColor);
 	}
 
-	protected virtual void drawNode(Node pNode, Brush pColor)
+	public virtual void drawNode(Node pNode, Brush pColor)
 	{
 		//colored node fill
 		graphics.FillEllipse(
@@ -202,6 +202,22 @@ abstract class NodeGraph : Canvas
 		float mouseToNodeDistance = Mathf.Sqrt(dx * dx + dy * dy);
 
 		return mouseToNodeDistance < nodeSize;
+	}
+
+	public void RemoveNode(Node node)
+	{
+		if (nodes.Contains(node))
+		{
+			nodes.ForEach(n =>
+			{
+				if (n.connections.Contains(node))
+				{
+					n.connections.Remove(node);
+				}
+			});
+			
+			nodes.Remove(node);
+		}
 	}
 
 }
