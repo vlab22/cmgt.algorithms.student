@@ -26,6 +26,8 @@ class Node
 
     public bool enabled = true;
 
+    public float distanceCost;
+
     /**
 	 * Create a node.
 	 * @param pLocation the position of this node

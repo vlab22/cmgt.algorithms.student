@@ -4,17 +4,9 @@ using System.Drawing;
 using System.Linq;
 using GXPEngine;
 
-internal class BreadthFirstPathFinder : PathFinder
+internal class DijkstraBreadthFirstPathFinder : BreadthFirstPathFinder
 {
-    protected List<Node> _todoList;
-    protected HashSet<Node> _doneList;
-    protected bool _done;
-    protected bool _isStep;
-
-    protected List<Node> _todoListDebug;
-    protected List<Node> _doneListDebug;
-
-    public BreadthFirstPathFinder(NodeGraph pGraph) : base(pGraph)
+    public DijkstraBreadthFirstPathFinder(NodeGraph pGraph) : base(pGraph)
     {
         _todoList = new List<Node>();
         _doneList = new HashSet<Node>();
@@ -30,12 +22,12 @@ internal class BreadthFirstPathFinder : PathFinder
         _todoList = new List<Node>();
         _doneList = new HashSet<Node>();
 
-        var path = BFS(pFrom, pTo);
+        var path = DijkstraBFS(pFrom, pTo);
 
         return path;
     }
 
-    private List<Node> BFS(Node pFrom, Node pTo)
+    private List<Node> DijkstraBFS(Node pFrom, Node pTo)
     {
         _todoList.Add(pFrom);
 
@@ -46,7 +38,7 @@ internal class BreadthFirstPathFinder : PathFinder
             var currentNode = _todoList.First();
             _todoList.Remove(currentNode);
             _doneList.Add(currentNode);
-
+            
             _todoListDebug.Add(currentNode);
             _doneListDebug.Add(currentNode);
 
@@ -56,14 +48,32 @@ internal class BreadthFirstPathFinder : PathFinder
             }
             else
             {
-                foreach (var connectedNode in currentNode.connections)
+                for (int i = 0; i < currentNode.connections.Count; i++)
                 {
+                    var connectedNode = currentNode.connections[i];
+
                     if (connectedNode.enabled &&
                         !(_todoList.Contains(connectedNode) || _doneList.Contains(connectedNode)))
                     {
-                        connectedNode.nodeParent = currentNode;
-                        _todoList.Add(connectedNode);
+                        float distanceFromStart = PointTools.PointDistance(currentNode.location, _startNode.location);
+                        float distanceToNew = PointTools.PointDistance(connectedNode.location, currentNode.location);
+
+                        connectedNode.distanceCost = distanceFromStart + distanceToNew;
                     }
+                    else
+                    {
+                        connectedNode.distanceCost = -1;
+                    }
+                }
+
+                var sortedConnections =
+                    currentNode.connections.Where(n => n.distanceCost > 0).OrderBy(n => n.distanceCost);
+
+                foreach (var sortedConnection in sortedConnections)
+                {
+                    var connectedNode = sortedConnection;
+                    connectedNode.nodeParent = currentNode;
+                    _todoList.Add(connectedNode);
                 }
             }
         }
@@ -103,31 +113,13 @@ internal class BreadthFirstPathFinder : PathFinder
     {
         base.handleInput();
 
-        if (Input.GetKeyDown(Key.D))
-        {
-            if (_startNode != null)
-            {
-                _nodeGraph.ActivateNode(_startNode, !_startNode.enabled);
-                _nodeGraph.draw();
-            }
-        }
-
         if (Input.GetKeyDown(Key.F))
         {
-            StepBytepBFS();
-        }
-
-        if (Input.GetKeyDown(Key.H))
-        {
-            if (_startNode != null && _endNode != null)
-            {
-                Generate(_startNode, _endNode);
-                DrawFullPath();
-            }
+            StepBytepDijkstraBFS();
         }
     }
 
-    void StepBytepBFS()
+    void StepBytepDijkstraBFS()
     {
         if (_startNode != null && _endNode != null)
         {
@@ -162,14 +154,34 @@ internal class BreadthFirstPathFinder : PathFinder
                 }
                 else
                 {
-                    foreach (var connectedNode in currentNode.connections)
+                    for (int i = 0; i < currentNode.connections.Count; i++)
                     {
+                        var connectedNode = currentNode.connections[i];
+
                         if (connectedNode.enabled &&
                             !(_todoList.Contains(connectedNode) || _doneList.Contains(connectedNode)))
                         {
-                            connectedNode.nodeParent = currentNode;
-                            _todoList.Add(connectedNode);
+                            float distanceFromStart =
+                                PointTools.PointDistance(currentNode.location, _startNode.location);
+                            float distanceToNew =
+                                PointTools.PointDistance(connectedNode.location, currentNode.location);
+
+                            connectedNode.distanceCost = distanceFromStart + distanceToNew;
                         }
+                        else
+                        {
+                            connectedNode.distanceCost = -1;
+                        }
+                    }
+
+                    var sortedConnections =
+                        currentNode.connections.Where(n => n.distanceCost > 0).OrderBy(n => n.distanceCost);
+
+                    foreach (var sortedConnection in sortedConnections)
+                    {
+                        var connectedNode = sortedConnection;
+                        connectedNode.nodeParent = currentNode;
+                        _todoList.Add(connectedNode);
                     }
                 }
             }
@@ -188,31 +200,6 @@ internal class BreadthFirstPathFinder : PathFinder
         {
             _isStep = false;
         }
-    }
-
-    protected void DrawFullPath()
-    {
-        _outlinePen = new Pen(Color.Black, 4);
-        _lastCalculatedPath = _todoListDebug;
-        Draw();
-
-        _lastCalculatedPath = BuildPath(_doneList);
-        _outlinePen = new Pen(Color.Cyan, 4);
-        Draw(false);
-    }
-
-    protected void Draw(bool clear = true)
-    {
-        //to keep things simple we redraw all debug info every frame
-        if (clear)
-            graphics.Clear(Color.Transparent);
-
-        //draw path if we have one
-        if (_lastCalculatedPath != null) drawPath();
-
-        //draw start and end if we have one
-        if (_startNode != null) drawNode(_startNode, _startNodeColor);
-        if (_endNode != null) drawNode(_endNode, _endNodeColor);
     }
 
     protected override void ClearPaths()

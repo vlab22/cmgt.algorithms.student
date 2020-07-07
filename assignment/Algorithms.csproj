@@ -156,11 +156,13 @@
     <Compile Include="sources\Solution\NodeGraph\HighLevelDungeonNodeGraph.cs" />
     <Compile Include="sources\Solution\NodeGraph\LowLevelDungeonNodeGraph.cs" />
     <Compile Include="sources\Solution\PathFinding\BreadthFirstPathFinder.cs" />
+    <Compile Include="sources\Solution\PathFinding\DijkstraBreadthFirstPathFinder.cs" />
     <Compile Include="sources\Solution\PathFinding\RecursivePathFinder.cs" />
     <Compile Include="sources\Solution\Tiles\TiledDungeonView.cs" />
     <Compile Include="sources\Util\ArrayTools.cs" />
     <Compile Include="sources\Util\Grid.cs" />
     <Compile Include="sources\Util\NodeLabelDrawer.cs" />
+    <Compile Include="sources\Util\PointTools.cs" />
     <Compile Include="sources\Util\RectangleExtensions.cs" />
     <Compile Include="sources\Util\Vec2.cs" />
   </ItemGroup>

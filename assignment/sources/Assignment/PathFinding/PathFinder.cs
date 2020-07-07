@@ -21,13 +21,13 @@ abstract class PathFinder : Canvas
     protected NodeGraph _nodeGraph;
 
     //some values for drawing the path
-    private Pen _outlinePen = new Pen(Color.Black, 4);
-    private Pen _connectionPen1 = new Pen(Color.Black, 10);
-    private Pen _connectionPen2 = new Pen(Color.Yellow, 3);
+    protected Pen _outlinePen = new Pen(Color.Black, 4);
+    protected Pen _connectionPen1 = new Pen(Color.Black, 10);
+    protected Pen _connectionPen2 = new Pen(Color.Yellow, 3);
 
-    private Brush _startNodeColor = Brushes.Green;
-    private Brush _endNodeColor = Brushes.Red;
-    private Brush _pathNodeColor = Brushes.Yellow;
+    protected Brush _startNodeColor = Brushes.Green;
+    protected Brush _endNodeColor = Brushes.Red;
+    protected Brush _pathNodeColor = Brushes.Yellow;
 
     public PathFinder(NodeGraph pGraph) : base(pGraph.width, pGraph.height)
     {
@@ -108,6 +108,11 @@ abstract class PathFinder : Canvas
 
     protected virtual void drawPath()
     {
+        drawPath(_pathNodeColor);
+    }
+
+    protected virtual void drawPath(Brush pathNodeColor)
+    {
         //draw all lines
         for (int i = 0; i < _lastCalculatedPath.Count - 1; i++)
         {
@@ -117,7 +122,7 @@ abstract class PathFinder : Canvas
         //draw all nodes between start and end
         for (int i = 1; i < _lastCalculatedPath.Count - 1; i++)
         {
-            drawNode(_lastCalculatedPath[i], _pathNodeColor);
+            drawNode(_lastCalculatedPath[i], pathNodeColor);
         }
     }
 
